@@ -286,13 +286,26 @@ app.on("web-contents-created", (event, contents) => {
 
     //テキストで右クリックされた場合
     if (params.selectionText) {
-      template.push(
-        {
-          label: "コピー",
-          click: () => contents.copy(),
-        },
-        { type: "separator" },
-      );
+      //クエリ長に上限を設けた検索用の選択テキスト
+      const search_query = params.selectionText.trim().slice(0, 100);
+
+      template.push({
+        label: "コピー",
+        click: () => contents.copy(),
+      });
+
+      //空白のみの選択では検索しない
+      if (search_query) {
+        template.push({
+          label: "Googleで検索",
+          click: () =>
+            open_external_with_warning(
+              `https://www.google.com/search?q=${encodeURIComponent(search_query)}`,
+            ),
+        });
+      }
+
+      template.push({ type: "separator" });
     }
 
     //編集可能で右クリックされた場合
